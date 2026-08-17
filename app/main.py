@@ -1,11 +1,16 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
+from app.rotas import cliente
+
 app = FastAPI(
     title="Techlog Solutions API",
     description="CRM para Techlog Solutions",
     version="1.0.0",
 )
+
+
+app.include_router(cliente.router)
 
 
 @app.get("/")
