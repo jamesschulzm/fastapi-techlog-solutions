@@ -16,3 +16,17 @@ class ClienteRepositorio:
                 for linha in linhas
             ]
             return clientes
+
+    async def obter_cliente(self, cliente_id: int) -> Cliente | None:
+        with self.db.conectar() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(
+                "SELECT id, nome, email, telefone FROM clientes WHERE id = ?",
+                (cliente_id,),
+            )
+            linha = cursor.fetchone()
+            if linha:
+                return Cliente(
+                    id=linha[0], nome=linha[1], email=linha[2], telefone=linha[3]
+                )
+            return None
