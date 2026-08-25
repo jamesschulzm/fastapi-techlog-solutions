@@ -2,7 +2,13 @@ from pydantic import BaseModel
 
 
 class Cliente(BaseModel):
-    id_: int
+    id: int
+    nome: str
+    email: str
+    telefone: str
+
+
+class ClienteCriarAtualizar(BaseModel):
     nome: str
     email: str
     telefone: str
