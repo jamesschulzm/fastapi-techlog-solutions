@@ -25,6 +25,10 @@ async def health_check():
 @app.get("/", response_class=HTMLResponse)
 async def front_page(request: Request):
     return templates.TemplateResponse(
-        "index.html",
-        {"request": request, "titulo": "Techlog Solutions CRM", "versao": "1.0.0"},
+        request=request,
+        name="index.html",
+        context={
+            "titulo": "Techlog Solutions CRM",
+            "versao": "1.0.0",
+        },
     )
