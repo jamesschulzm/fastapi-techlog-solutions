@@ -1,7 +1,12 @@
-from fastapi import APIRouter, Form
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Form
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+
+from app.banco_de_dados.usuario_repositorio import UsuarioRepositorio
+from app.dependencias import obter_usuario_repositorio
 
 templates = Jinja2Templates(directory="templates")
 
@@ -18,19 +23,28 @@ async def pagina_login(request: Request):
 
 
 @router.post("/")
-async def login(request: Request, email: str = Form(...), senha: str = Form(...)):
-    if email == "admin@techlog.com.br" and senha == "senha123":
+async def login(
+    request: Request,
+    usuario_repositorio: Annotated[
+        UsuarioRepositorio, Depends(obter_usuario_repositorio)
+    ],
+    email: str = Form(...),
+    senha: str = Form(...),
+):
+    usuario = await usuario_repositorio.buscar_usuario_por_email_senha(email, senha)
+    if usuario:
         response = RedirectResponse(url="/", status_code=303)
         response.set_cookie(key="session_token", value="token-senha", httponly=True)
         return response
-    else:
-        return templates.TemplateResponse(
-            request=request,
-            name="login.html",
-            context={
-                "request": request,
-                "email": email,
-                "senha": senha,
-                "error": "Credenciais inválidas",
-            },
-        )
+
+    # Caso contrário, informe que houve uma credencial inválida
+    return templates.TemplateResponse(
+        request=request,
+        name="login.html",
+        context={
+            "request": request,
+            "email": email,
+            "senha": senha,
+            "error": "Credenciais inválidas",
+        },
+    )
